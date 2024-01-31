@@ -24,3 +24,9 @@ variable "account_replication_type" {
   type        = string
   default     = "LRS"
 }
+
+variable "environment" {
+  description = "The environment for the storage account"
+  type        = string
+  default     = "staging"
+}
