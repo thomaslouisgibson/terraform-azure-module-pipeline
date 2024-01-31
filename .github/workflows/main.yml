@@ -1,0 +1,61 @@
+name: Trunk Workflow
+
+on:
+  push:
+    branches:
+      - 'v1-*' # for supporting previous versions
+
+env:
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+jobs:
+  lint:
+    name: TFLint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Lint with tflint
+        uses: terraform-linters/setup-tflint@v1
+
+  static-analysis:
+    name: Static Code Analysis
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@master
+
+  test:
+    name: Terraform Test
+    needs: static-analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+      - name: Terraform Init
+        run: terraform init
+      - name: Terraform Test
+        run: terraform test
+
+  release:
+    name: Release
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          # Assumes tags are in semantic versioning
+          tag_name: ${{ github.ref }}
+          draft: false
+          prerelease: false

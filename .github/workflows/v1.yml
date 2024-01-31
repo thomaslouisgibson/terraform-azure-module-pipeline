@@ -1,9 +1,8 @@
-name: Terraform Azure Module Release
+name: Trunk Workflow
 
 on:
   push:
     branches:
-      - main
       - 'v1-*' # for supporting previous versions
 
 env:
