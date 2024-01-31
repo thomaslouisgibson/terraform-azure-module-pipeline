@@ -56,7 +56,7 @@ jobs:
           sudo mv terraform-docs /usr/local/bin/terraform-docs
   
       - name: Generate Docs
-        run: terraform-docs markdown table --output-file README.md .
+        run: terraform-docs --header-from header.md  markdown table ./my_module > README.md
   
       - name: Commit documentation changes
         run: |
